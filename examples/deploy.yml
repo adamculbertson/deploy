@@ -1,0 +1,30 @@
+ha:
+  url: https://your.homeassistant.domain.com #URL to your Home Assistant instance, for example: ha.example.com or example.com/ha
+  webhook: ha_notification_webhook_name      #Name of the webhook to use to send a notification. This should be treated like a password
+
+#Define targets for deployment
+#There are currently only two types: local and ssh
+#The friendly name is not currently used, but it may be in the future
+targets:
+  #This is the first target, and can be called whatever you want
+  remote_target:
+    #This is an example SSH configuration option
+    #The SSH option should have a config option specified in your ~/.ssh/config file
+    #It should also have a passwordless private key set up so that there are no password prompts
+    friendly_name: SSH Wildcard Example
+    type: ssh
+    config: target1 #The "Host" entry in the ssh config file to use
+    destination: /path/to/remote/certs #This is the remote path to copy the certificates to
+    domain: '*.example.com' #The domain certificate to use. This uses a wildcard example
+    ecc: true #When true, ECC certificates have been requested from acme.sh
+    finished: /usr/local/bin/reload_nginx #Optional command to remotely execute after the copy is completed
+
+  #Example of a local deployment
+  local_target:
+    friendly_name: Local Non-Wildcard Example
+    type: local
+    ecc: true
+    destination: /path/to/local/certs #Local path to certificates
+    domain: example.com #Non-wildcard example domain. This one does not need to be quoted
+    finished: /path/to/some/command #Same thing as the SSH example
+    ecc: true
