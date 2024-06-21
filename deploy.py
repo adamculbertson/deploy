@@ -212,45 +212,5 @@ if __name__ == "__main__":
             success = False
             break
 
-    if "ifttt" in config:
-        # Determine the appropriate event URL to fire
-        if success:
-            url = ifttt_url.format(event=config['ifttt']['event_success'], key=config['ifttt']['key'])
-        else:
-            url = ifttt_url.format(event=config['ifttt']['event_fail'], key=config['ifttt']['key'])
-
-        domain_field = config['ifttt']['domain_field']
-        data = {domain_field: domain}
-
-        r = requests.post(url, json=data)
-        if r.status_code == 200:
-            if "Congratulations" in r.text:
-                sys.exit(0)
-            else:
-                sys.exit(5)
-        else:
-            sys.exit(6)
-
-    if "ha" in config:
-        base_url = f"{config['ha']['url']}/api/webhook"
-        webhook = config['ha']['webhook']
-        if success:
-            title = f"{domain} Successfully Renewed"
-            message = f"The certificate for {domain} was successfully renwed"
-        else:
-            title = f"{domain} Renewal Failure"
-            message = f"The certificate for {domain} failed to renew"
-
-        data = {
-            "title": title,
-            "message": message
-        }
-
-        url = f"{base_url}/{webhook}"
-        r = requests.post(url, json=data)
-        if r.status_code == 200:
-            logging.info(f"Successfully sent HomeAssistant message: {message}")
-            sys.exit(0)
-        else:
-            logging.error(f"Failed to send HomeAssistant message '{message}'. HA returned status code '{r.status_code}'")
-            sys.exit(6)
+    if not success:
+        sys.exit(-1)
