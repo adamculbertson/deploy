@@ -5,7 +5,6 @@
 USER_NAME="root"
 #END CONFIGURATION OPTIONS
 
-
 CERT_PATH="/home/$USER_NAME/.certs"
 DEST_PATH="/etc/pve/nodes/proxmox"
 

@@ -59,6 +59,39 @@ def get_cert_paths(domain, ecc=False):
 
     return result
 
+def type_shell(target):
+    ecc = False
+    if "ecc" in target:
+        ecc = target['ecc']
+
+    cert_paths = get_cert_paths(domain, ecc)
+
+    if "exec" not in target:
+        logging.error(f"Missing 'exec' information for target '{target['name']}")
+        return False
+
+    cmd = target['exec']
+    params = [cmd, "--cert-file", cert_paths['cert_file'], "--key-file", cert_paths['key_file'],
+              "--chain-file", cert_paths['chain_file'], "--ca-file", cert_paths['ca_file']]
+
+    # Determine if there are any additional parameters to pass to the shell script
+    extra_params = []
+    if "params" in target:
+        extra_params = target['params']
+
+    # Add the extra parameters
+    params += extra_params
+
+    try:
+        result = subprocess.run(params, capture_output=True)
+    except Exception as e:
+        logging.error(f"Unable to execute '{cmd}' for target '{target['name']}': {e}")
+        return False
+
+    if result.returncode != 0:
+        logging.error(f"Could not run '{cmd}' for target '{target['name']}'. Got return code: {result.returncode}")
+        return False
+
 
 def type_local(target):
     ecc = False
@@ -200,6 +233,8 @@ if __name__ == "__main__":
             results[key] = type_local(target)
         elif target['type'] == "ssh":
             results[key] = type_ssh(target)
+        elif target['type'] == "shell":
+            results[key] = type_shell(target)
         else:
             logging.error(f"Invalid type '{target['type']}' for target '{key}'")
             sys.exit(4)
