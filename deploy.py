@@ -186,6 +186,8 @@ def type_ssh(target):
 
 if __name__ == "__main__":
     if not os.path.exists(config_path):
+        sys.stderr.write(f"Configuration file at '{config_path}' was not found!\n")
+        sys.stderr.flush()
         sys.exit(1)
 
     with open(config_path, "rt") as f:
@@ -196,13 +198,14 @@ if __name__ == "__main__":
         domain = sys.argv[1]
     except IndexError:
         sys.stderr.write(f"Usage: {sys.argv[0]} domain\n")
+        sys.stderr.flush()
         sys.exit(1)
 
     # Gather a list of domains from each target
     config['domains'] = []
     for target in config['targets']:
-        if config['targets'][target][domain] not in config['domains']:
-            config['domains'].append(config['targets'][target][domain])
+        if config['targets'][target]['domain'] not in config['domains']:
+            config['domains'].append(config['targets'][target]['domain'])
 
     # Verify that the domain is in the list of domains
     found = False
